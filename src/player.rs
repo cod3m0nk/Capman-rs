@@ -1,3 +1,4 @@
+use crate::input::InputDirectionEvent;
 use crate::movement::Direction;
 use crate::movement::Directions;
 use crate::movement::MovingObjectBundle;
@@ -7,7 +8,6 @@ use crate::PLAYER_VELOCITY;
 use crate::STARTING_DIRECTION;
 use crate::STARTING_POSITION_X;
 use crate::STARTING_POSITION_Y;
-use bevy::log;
 use bevy::prelude::*;
 
 #[derive(Bundle)]
@@ -54,19 +54,15 @@ fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 fn player_movement_control(
     mut query: Query<&mut Direction, With<Player>>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut input_event_reader: EventReader<InputDirectionEvent>,
 ) {
     let mut direction = query.single_mut();
-    if keyboard_input.pressed(KeyCode::KeyA) {
-        direction.current = Directions::Left;
-    } else if keyboard_input.pressed(KeyCode::KeyD) {
-        log::info!("Right");
-        direction.current = Directions::Right;
-    } else if keyboard_input.pressed(KeyCode::KeyW) {
-        log::info!("Up");
-        direction.current = Directions::Up;
-    } else if keyboard_input.pressed(KeyCode::KeyS) {
-        log::info!("Down");
-        direction.current = Directions::Down;
+    for input_event in input_event_reader.read() {
+        match input_event {
+            InputDirectionEvent::Up => direction.current = Directions::Up,
+            InputDirectionEvent::Down => direction.current = Directions::Down,
+            InputDirectionEvent::Left => direction.current = Directions::Left,
+            InputDirectionEvent::Right => direction.current = Directions::Right,
+        }
     }
 }

@@ -14,6 +14,7 @@ clippy::nursery,
 #![allow(clippy::single_match)]
 mod board;
 mod camera;
+mod input;
 mod movement;
 mod pickup;
 mod player;
@@ -22,6 +23,7 @@ use bevy::prelude::*;
 use bevy::window::WindowResolution;
 use board::BoardPlugin;
 use camera::CameraPlugin;
+use input::InputPlugin;
 use movement::Directions;
 use movement::MovementPlugin;
 use player::PlayerPlugin;
@@ -66,6 +68,7 @@ fn main() {
         .add_plugins(PlayerPlugin)
         .add_plugins(MovementPlugin)
         .add_plugins(BoardPlugin)
+        .add_plugins(InputPlugin)
         .insert_resource(GameState { is_debug: false })
         .run();
 }
