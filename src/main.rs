@@ -14,6 +14,7 @@ clippy::nursery,
 #![allow(clippy::single_match)]
 mod board;
 mod camera;
+mod debug;
 mod input;
 mod movement;
 mod pickup;
@@ -23,6 +24,8 @@ use bevy::prelude::*;
 use bevy::window::WindowResolution;
 use board::BoardPlugin;
 use camera::CameraPlugin;
+use debug::DebugGizmos;
+use debug::DebugPlugin;
 use input::InputPlugin;
 use movement::Directions;
 use movement::MovementPlugin;
@@ -37,8 +40,9 @@ const STARTING_POSITION_Y: f32 = 23.;
 const STARTING_DIRECTION: Directions = Directions::Down;
 const PLAYER_VELOCITY: f32 = 8.;
 
-#[derive(Resource)]
+#[derive(Default, Resource)]
 pub struct GameState {
+    pub show_grid: bool,
     pub is_debug: bool,
 }
 
@@ -64,11 +68,13 @@ fn main() {
                     ..Default::default()
                 }),
         )
+        .init_gizmo_group::<DebugGizmos>()
         .add_plugins(CameraPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(MovementPlugin)
         .add_plugins(BoardPlugin)
         .add_plugins(InputPlugin)
-        .insert_resource(GameState { is_debug: false })
+        .add_plugins(DebugPlugin)
+        .insert_resource(GameState::default())
         .run();
 }

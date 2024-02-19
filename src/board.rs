@@ -118,6 +118,9 @@ impl Board {
         }
         &self.cells[y as usize * self.columns as usize + x as usize]
     }
+    pub const fn get_dimensions(&self) -> (usize, usize) {
+        (self.rows as usize, self.columns as usize)
+    }
 }
 
 impl From<&str> for Board {

@@ -1,3 +1,4 @@
+use crate::GameState;
 use bevy::prelude::*;
 
 pub struct InputPlugin;
@@ -20,14 +21,24 @@ impl Plugin for InputPlugin {
 fn read_inputs(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut direction_event_writer: EventWriter<InputDirectionEvent>,
+    mut game_state: ResMut<GameState>,
 ) {
-    if keyboard_input.pressed(KeyCode::KeyA) || keyboard_input.pressed(KeyCode::ArrowLeft) {
+    if keyboard_input.just_pressed(KeyCode::KeyA) || keyboard_input.just_pressed(KeyCode::ArrowLeft)
+    {
         direction_event_writer.send(InputDirectionEvent::Left);
-    } else if keyboard_input.pressed(KeyCode::KeyD) || keyboard_input.pressed(KeyCode::ArrowRight) {
+    } else if keyboard_input.just_pressed(KeyCode::KeyD)
+        || keyboard_input.just_pressed(KeyCode::ArrowRight)
+    {
         direction_event_writer.send(InputDirectionEvent::Right);
-    } else if keyboard_input.pressed(KeyCode::KeyW) || keyboard_input.pressed(KeyCode::ArrowUp) {
+    } else if keyboard_input.just_pressed(KeyCode::KeyW)
+        || keyboard_input.just_pressed(KeyCode::ArrowUp)
+    {
         direction_event_writer.send(InputDirectionEvent::Up);
-    } else if keyboard_input.pressed(KeyCode::KeyS) || keyboard_input.pressed(KeyCode::ArrowDown) {
+    } else if keyboard_input.just_pressed(KeyCode::KeyS)
+        || keyboard_input.just_pressed(KeyCode::ArrowDown)
+    {
         direction_event_writer.send(InputDirectionEvent::Down);
+    } else if keyboard_input.just_pressed(KeyCode::KeyG) {
+        game_state.show_grid ^= true;
     }
 }
