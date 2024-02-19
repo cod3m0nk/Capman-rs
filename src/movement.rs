@@ -58,13 +58,17 @@ impl Position {
     }
 
     pub fn get_transform(&self) -> Transform {
-        Transform::from_xyz(self.x * CELL_SIZE, 0. - self.y * CELL_SIZE, 0.)
+        Transform::from_xyz(
+            self.x * CELL_SIZE + (CELL_SIZE / 2.),
+            -(CELL_SIZE / 2.) - self.y * CELL_SIZE,
+            0.,
+        )
     }
 }
 
 impl From<&Position> for Transform {
     fn from(value: &Position) -> Self {
-        Transform::from_xyz(value.x * CELL_SIZE, 0. - value.y * CELL_SIZE, 0.)
+        value.get_transform()
     }
 }
 

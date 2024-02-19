@@ -40,7 +40,7 @@ fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
             sprite: SpriteBundle {
                 texture: asset_server.load("sprites/capman.png"),
                 sprite: Sprite {
-                    anchor: bevy::sprite::Anchor::TopLeft,
+                    anchor: bevy::sprite::Anchor::Center,
                     rect: Some(Rect::new(24., 0., 48., 24.)),
                     ..Default::default()
                 },

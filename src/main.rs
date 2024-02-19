@@ -12,23 +12,26 @@ clippy::nursery,
 #![allow(clippy::future_not_send)]
 #![allow(clippy::fallible_impl_from)]
 #![allow(clippy::single_match)]
+mod board;
 mod camera;
 mod movement;
+mod pickup;
 mod player;
 
 use bevy::prelude::*;
 use bevy::window::WindowResolution;
+use board::BoardPlugin;
 use camera::CameraPlugin;
 use movement::Directions;
 use movement::MovementPlugin;
 use player::PlayerPlugin;
 
-const WINDOW_WIDTH: f32 = 496.0;
-const WINDOW_HEIGHT: f32 = 672.0;
-const CELL_SIZE: f32 = 24.;
+const WINDOW_WIDTH: f32 = 448.0;
+const WINDOW_HEIGHT: f32 = 496.0;
+const CELL_SIZE: f32 = 16.;
 
-const STARTING_POSITION_X: f32 = 2.;
-const STARTING_POSITION_Y: f32 = 1.;
+const STARTING_POSITION_X: f32 = 14.;
+const STARTING_POSITION_Y: f32 = 23.;
 const STARTING_DIRECTION: Directions = Directions::Down;
 const PLAYER_VELOCITY: f32 = 8.;
 
@@ -39,6 +42,7 @@ pub struct GameState {
 
 fn main() {
     App::new()
+        .insert_resource(ClearColor(Color::BLACK))
         .add_plugins(
             DefaultPlugins
                 .set(
@@ -61,6 +65,7 @@ fn main() {
         .add_plugins(CameraPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(MovementPlugin)
+        .add_plugins(BoardPlugin)
         .insert_resource(GameState { is_debug: false })
         .run();
 }
