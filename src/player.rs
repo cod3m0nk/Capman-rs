@@ -59,10 +59,10 @@ fn player_movement_control(
     let mut direction = query.single_mut();
     for input_event in input_event_reader.read() {
         match input_event {
-            InputDirectionEvent::Up => direction.current = Directions::Up,
-            InputDirectionEvent::Down => direction.current = Directions::Down,
-            InputDirectionEvent::Left => direction.current = Directions::Left,
-            InputDirectionEvent::Right => direction.current = Directions::Right,
+            InputDirectionEvent::Up => direction.next = Directions::Up,
+            InputDirectionEvent::Down => direction.next = Directions::Down,
+            InputDirectionEvent::Left => direction.next = Directions::Left,
+            InputDirectionEvent::Right => direction.next = Directions::Right,
         }
     }
 }

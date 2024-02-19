@@ -3,11 +3,11 @@ use crate::{
     pickup::{Dot, Pickup, PickupBundle, PowerPill},
     CELL_SIZE,
 };
-use bevy::{log, prelude::*};
+use bevy::prelude::*;
 
 const DEFAULT_LAYOUT: &str = include_str!("default_layout.txt");
 
-#[derive(Component)]
+#[derive(Resource)]
 pub struct Board {
     columns: isize,
     rows: isize,
@@ -24,7 +24,9 @@ pub struct BoardPlugin;
 
 impl Plugin for BoardPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_systems(Startup, spawn_board);
+        let board: Board = DEFAULT_LAYOUT.into();
+        app.add_systems(Startup, spawn_board_components)
+            .insert_resource(board);
     }
 }
 
@@ -46,9 +48,11 @@ pub enum WallType {
     BottomRight,
 }
 
-fn spawn_board(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let board: Board = DEFAULT_LAYOUT.into();
-
+fn spawn_board_components(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    board: Res<Board>,
+) {
     for (index, cell) in board.cells.iter().enumerate() {
         let texture = match cell {
             CellType::Wall(WallType::Vertical) => "sprites/vertical.png",
@@ -102,12 +106,10 @@ fn spawn_board(mut commands: Commands, asset_server: Res<AssetServer>) {
             _ => continue,
         };
     }
-    commands.spawn(board);
-    log::info!("spawning board");
 }
 
 impl Board {
-    fn get_cell(&self, x: f32, y: f32) -> &CellType {
+    pub fn get_cell(&self, x: f32, y: f32) -> &CellType {
         if x < 0. || x >= self.columns as f32 {
             return &CellType::Outside;
         }
