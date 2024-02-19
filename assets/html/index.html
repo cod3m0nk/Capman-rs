@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>CapMan-rs</title>
+    <style>
+        html,
+        body,
+        canvas {
+            margin: 0px;
+            padding: 0px;
+            overflow: hidden;
+            background: black;
+            z-index: 0;
+        }
+        body {
+            width: auto;
+            height: auto;
+            background-color: unset;
+        }
+        #game-canvas {
+            zoom: 1.25;
+            width: 496px !important;
+            height: 672px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        import init from './capman-bevy.js'
+
+        init().catch((error) => {
+          if (!error.message.startsWith("Using exceptions for control flow, don't mind me. This isn't actually an error!")) {
+            throw error;
+          }
+        });
+    </script>
+    <canvas id="game-canvas" tabindex='1'/>
+</body>
+
+</html>
