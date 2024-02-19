@@ -1,4 +1,4 @@
-project = capman-bevy
+project = capman-rs
 
 main : build copy
 test : main serve
