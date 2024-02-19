@@ -18,7 +18,7 @@ pub struct Pickup {
 }
 
 impl Pickup {
-    pub fn new(position: Position, radius: f32) -> Self {
+    pub const fn new(position: Position, radius: f32) -> Self {
         Self { position, radius }
     }
 }

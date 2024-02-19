@@ -26,7 +26,7 @@ pub struct Velocity {
 }
 
 impl Velocity {
-    pub fn new(value: f32) -> Self {
+    pub const fn new(value: f32) -> Self {
         Self { value }
     }
 }
@@ -46,7 +46,7 @@ pub struct Direction {
 }
 
 impl Direction {
-    pub fn new(current: Directions, next: Directions) -> Self {
+    pub const fn new(current: Directions, next: Directions) -> Self {
         Self { current, next }
     }
 }
@@ -58,14 +58,14 @@ pub struct Position {
 }
 
 impl Position {
-    pub fn new(x: f32, y: f32) -> Self {
+    pub const fn new(x: f32, y: f32) -> Self {
         Self { x, y }
     }
 
     pub fn get_transform(&self) -> Transform {
         Transform::from_xyz(
-            self.x * CELL_SIZE + (CELL_SIZE / 2.),
-            -(CELL_SIZE / 2.) - self.y * CELL_SIZE,
+            self.x.mul_add(CELL_SIZE, CELL_SIZE / 2.),
+            self.y.mul_add(-CELL_SIZE, -(CELL_SIZE / 2.)),
             0.,
         )
     }
@@ -78,7 +78,7 @@ impl Position {
             Directions::Left => dest_x = dest_x.ceil() - 1.,
             Directions::Right => dest_x = dest_x.floor() + 1.,
         };
-        Position {
+        Self {
             x: dest_x,
             y: dest_y,
         }

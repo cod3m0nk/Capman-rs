@@ -12,6 +12,8 @@ clippy::nursery,
 #![allow(clippy::future_not_send)]
 #![allow(clippy::fallible_impl_from)]
 #![allow(clippy::single_match)]
+#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::needless_pass_by_value)]
 mod board;
 mod camera;
 mod debug;

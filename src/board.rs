@@ -135,14 +135,10 @@ impl From<&str> for Board {
                 (_, '|', '-', _) => WallType::TopRight,
                 ('|', _, '-', _) => WallType::BottomRight,
                 ('|', _, _, '-') => WallType::BottomLeft,
-                (_, '|', _, '+') => WallType::TopLeft,
-                (_, '+', _, '-') => WallType::TopLeft,
-                (_, '|', '+', _) => WallType::TopRight,
-                (_, '+', '-', _) => WallType::TopRight,
-                ('|', _, '+', _) => WallType::BottomRight,
-                ('+', _, '-', _) => WallType::BottomRight,
-                ('|', _, _, '+') => WallType::BottomLeft,
-                ('+', _, _, '-') => WallType::BottomLeft,
+                (_, '|', _, '+') | (_, '+', _, '-') => WallType::TopLeft,
+                (_, '|', '+', _) | (_, '+', '-', _) => WallType::TopRight,
+                ('|', _, '+', _) | ('+', _, '-', _) => WallType::BottomRight,
+                ('|', _, _, '+') | ('+', _, _, '-') => WallType::BottomLeft,
                 _ => {
                     unreachable!("Invalid wall type {column} {row} u{up} d{down} l{left} r{right}",)
                 }
