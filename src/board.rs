@@ -1,24 +1,11 @@
 use crate::{
     movement::Position,
-    pickup::{Dot, Pickup, PickupBundle, PowerPill},
+    pickup::{Dot, PowerPill},
     CELL_SIZE,
 };
 use bevy::prelude::*;
 
 const DEFAULT_LAYOUT: &str = include_str!("default_layout.txt");
-
-#[derive(Resource)]
-pub struct Board {
-    columns: isize,
-    rows: isize,
-    cells: Vec<CellType>,
-}
-
-#[derive(Bundle)]
-pub struct Wall {
-    position: Position,
-    sprite: SpriteBundle,
-}
 
 pub struct BoardPlugin;
 
@@ -28,6 +15,13 @@ impl Plugin for BoardPlugin {
         app.add_systems(Startup, spawn_board_components)
             .insert_resource(board);
     }
+}
+
+#[derive(Resource)]
+pub struct Board {
+    columns: isize,
+    rows: isize,
+    cells: Vec<CellType>,
 }
 
 #[derive(Component)]
@@ -53,19 +47,10 @@ fn spawn_board_components(
     asset_server: Res<AssetServer>,
     board: Res<Board>,
 ) {
-    for (index, cell) in board.cells.iter().enumerate() {
-        let texture = match cell {
-            CellType::Wall(WallType::Vertical) => "sprites/vertical.png",
-            CellType::Wall(WallType::Horizontal) => "sprites/horizontal.png",
-            CellType::Wall(WallType::TopLeft) => "sprites/top-left.png",
-            CellType::Wall(WallType::TopRight) => "sprites/top-right.png",
-            CellType::Wall(WallType::BottomLeft) => "sprites/bottom-left.png",
-            CellType::Wall(WallType::BottomRight) => "sprites/bottom-right.png",
-            CellType::Dot => "sprites/dot.png",
-            CellType::PowerPill => "sprites/powerpill.png",
-            CellType::Empty | CellType::Outside => continue,
+    for (index, cell_type) in board.cells.iter().enumerate() {
+        let Some(texture) = cell_type.get_texture() else {
+            continue;
         };
-
         let row = index as isize / board.columns;
         let column = index as isize % board.columns;
 
@@ -84,25 +69,10 @@ fn spawn_board_components(
             ..Default::default()
         };
 
-        match cell {
-            CellType::Wall(_) => commands.spawn(Wall {
-                position,
-                sprite: sprite_bundle,
-            }),
-            CellType::Dot => commands.spawn((
-                PickupBundle {
-                    pickup: Pickup::new(position, CELL_SIZE / 2.),
-                    sprite: sprite_bundle,
-                },
-                Dot,
-            )),
-            CellType::PowerPill => commands.spawn((
-                PickupBundle {
-                    pickup: Pickup::new(position, CELL_SIZE / 2.),
-                    sprite: sprite_bundle,
-                },
-                PowerPill,
-            )),
+        match cell_type {
+            CellType::Wall(_) => commands.spawn((position, sprite_bundle)),
+            CellType::Dot => commands.spawn((sprite_bundle, Dot)),
+            CellType::PowerPill => commands.spawn((sprite_bundle, PowerPill)),
             _ => continue,
         };
     }
@@ -195,5 +165,21 @@ impl From<&str> for Board {
             board.rows += 1;
         }
         board
+    }
+}
+
+impl CellType {
+    const fn get_texture(&self) -> Option<&'static str> {
+        match self {
+            Self::Wall(WallType::Vertical) => Some("sprites/vertical.png"),
+            Self::Wall(WallType::Horizontal) => Some("sprites/horizontal.png"),
+            Self::Wall(WallType::TopLeft) => Some("sprites/top-left.png"),
+            Self::Wall(WallType::TopRight) => Some("sprites/top-right.png"),
+            Self::Wall(WallType::BottomLeft) => Some("sprites/bottom-left.png"),
+            Self::Wall(WallType::BottomRight) => Some("sprites/bottom-right.png"),
+            Self::Dot => Some("sprites/dot.png"),
+            Self::PowerPill => Some("sprites/powerpill.png"),
+            Self::Empty | Self::Outside => None,
+        }
     }
 }

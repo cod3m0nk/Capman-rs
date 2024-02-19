@@ -1,25 +1,13 @@
-use bevy::{
-    ecs::{bundle::Bundle, component::Component},
-    sprite::SpriteBundle,
-};
-
-use crate::movement::Position;
-
-#[derive(Bundle)]
-pub struct PickupBundle {
-    pub pickup: Pickup,
-    pub sprite: SpriteBundle,
-}
+use bevy::ecs::component::Component;
 
 #[derive(Component)]
 pub struct Pickup {
-    position: Position,
-    radius: f32,
+    value: usize,
 }
 
 impl Pickup {
-    pub const fn new(position: Position, radius: f32) -> Self {
-        Self { position, radius }
+    pub const fn new(value: usize) -> Self {
+        Self { value }
     }
 }
 

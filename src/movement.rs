@@ -5,19 +5,19 @@ use crate::{
 };
 use bevy::prelude::*;
 
-#[derive(Bundle)]
-pub struct MovingObjectBundle {
-    pub position: Position,
-    pub velocity: Velocity,
-    pub dir: Direction,
-}
-
 pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, update_player_position);
     }
+}
+
+#[derive(Bundle)]
+pub struct MovingObjectBundle {
+    pub position: Position,
+    pub velocity: Velocity,
+    pub dir: Direction,
 }
 
 #[derive(Component)]
