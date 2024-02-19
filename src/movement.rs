@@ -92,17 +92,11 @@ impl From<&Position> for Transform {
 }
 
 fn update_player_position(
-    mut query: Query<(
-        &Velocity,
-        &mut Direction,
-        &mut Position,
-        &mut Transform,
-        &Player,
-    )>,
+    mut query: Query<(&Velocity, &mut Direction, &mut Position, &mut Transform), With<Player>>,
     time: Res<Time>,
     board: Res<Board>,
 ) {
-    let (velocity, mut direction, mut position, mut transform, _) = query.single_mut();
+    let (velocity, mut direction, mut position, mut transform) = query.single_mut();
 
     let distance = velocity.value * time.delta_seconds();
     move_player(&mut direction, &mut position, &board, distance);
