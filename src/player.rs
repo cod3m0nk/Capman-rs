@@ -1,3 +1,5 @@
+use crate::game_assets::GameAssets;
+use crate::game_assets::GameAssetsLoader;
 use crate::input::InputDirectionEvent;
 use crate::movement::Direction;
 use crate::movement::Directions;
@@ -22,7 +24,7 @@ impl Plugin for PlayerPlugin {
 #[derive(Component)]
 pub struct Player;
 
-fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn spawn_player(mut commands: Commands, game_assets: Res<GameAssetsLoader>) {
     let position = Position::new(STARTING_POSITION_X, STARTING_POSITION_Y);
     let transform = Transform::from(&position);
     commands.spawn((
@@ -32,7 +34,7 @@ fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
             dir: Direction::new(STARTING_DIRECTION, STARTING_DIRECTION),
         },
         SpriteBundle {
-            texture: asset_server.load("sprites/capman.png"),
+            texture: game_assets.get(GameAssets::Player),
             sprite: Sprite {
                 anchor: bevy::sprite::Anchor::Center,
                 rect: Some(Rect::new(24., 0., 48., 24.)),

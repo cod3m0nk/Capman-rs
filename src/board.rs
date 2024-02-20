@@ -1,5 +1,6 @@
 use crate::{
     collision::Collider,
+    game_assets::{GameAssets, GameAssetsLoader},
     movement::Position,
     pickup::{Dot, Pickup, PowerPill},
     CELL_SIZE, DOT_SCORE, PICKUP_RANGE, POWERPILL_SCORE,
@@ -45,11 +46,11 @@ pub enum WallType {
 
 fn spawn_board_components(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    game_assets_loader: Res<GameAssetsLoader>,
     board: Res<Board>,
 ) {
     for (index, cell_type) in board.cells.iter().enumerate() {
-        let Some(texture) = cell_type.get_texture() else {
+        let Some(asset) = cell_type.get_asset() else {
             continue;
         };
         let row = index as isize / board.columns;
@@ -59,7 +60,7 @@ fn spawn_board_components(
         let transform = position.get_transform();
 
         let sprite_bundle = SpriteBundle {
-            texture: asset_server.load(texture),
+            texture: game_assets_loader.get(asset),
             sprite: Sprite {
                 anchor: bevy::sprite::Anchor::Center,
                 rect: Some(Rect::new(0., 0., CELL_SIZE, CELL_SIZE)),
@@ -182,16 +183,16 @@ impl From<&str> for Board {
 }
 
 impl CellType {
-    const fn get_texture(&self) -> Option<&'static str> {
+    const fn get_asset(&self) -> Option<GameAssets> {
         match self {
-            Self::Wall(WallType::Vertical) => Some("sprites/vertical.png"),
-            Self::Wall(WallType::Horizontal) => Some("sprites/horizontal.png"),
-            Self::Wall(WallType::TopLeft) => Some("sprites/top-left.png"),
-            Self::Wall(WallType::TopRight) => Some("sprites/top-right.png"),
-            Self::Wall(WallType::BottomLeft) => Some("sprites/bottom-left.png"),
-            Self::Wall(WallType::BottomRight) => Some("sprites/bottom-right.png"),
-            Self::Dot => Some("sprites/dot.png"),
-            Self::PowerPill => Some("sprites/powerpill.png"),
+            Self::Wall(WallType::Vertical) => Some(GameAssets::WallVertical),
+            Self::Wall(WallType::Horizontal) => Some(GameAssets::WallHorizontal),
+            Self::Wall(WallType::TopLeft) => Some(GameAssets::WallTopLeft),
+            Self::Wall(WallType::TopRight) => Some(GameAssets::WallTopRight),
+            Self::Wall(WallType::BottomLeft) => Some(GameAssets::WallBottomLeft),
+            Self::Wall(WallType::BottomRight) => Some(GameAssets::WallBottomRight),
+            Self::Dot => Some(GameAssets::Dot),
+            Self::PowerPill => Some(GameAssets::PowerPill),
             Self::Empty | Self::Outside => None,
         }
     }

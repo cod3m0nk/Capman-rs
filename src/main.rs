@@ -18,6 +18,7 @@ mod board;
 mod camera;
 mod collision;
 mod debug;
+mod game_assets;
 mod input;
 mod movement;
 mod pickup;
@@ -30,6 +31,7 @@ use camera::CameraPlugin;
 use collision::CollisionPlugin;
 use debug::DebugGizmos;
 use debug::DebugPlugin;
+use game_assets::AssetLoaderPlugin;
 use input::InputPlugin;
 use movement::Directions;
 use movement::MovementPlugin;
@@ -79,6 +81,7 @@ fn main() {
         )
         .init_gizmo_group::<DebugGizmos>()
         .add_plugins(CameraPlugin)
+        .add_plugins(AssetLoaderPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(MovementPlugin)
         .add_plugins(BoardPlugin)
