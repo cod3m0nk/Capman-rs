@@ -9,6 +9,9 @@ impl Pickup {
     pub const fn new(value: usize) -> Self {
         Self { value }
     }
+    pub const fn get_value(&self) -> usize {
+        self.value
+    }
 }
 
 #[derive(Component)]

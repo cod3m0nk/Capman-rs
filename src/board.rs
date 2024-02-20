@@ -1,7 +1,8 @@
 use crate::{
+    collision::Collider,
     movement::Position,
-    pickup::{Dot, PowerPill},
-    CELL_SIZE,
+    pickup::{Dot, Pickup, PowerPill},
+    CELL_SIZE, DOT_SCORE, PICKUP_RANGE, POWERPILL_SCORE,
 };
 use bevy::prelude::*;
 
@@ -71,8 +72,20 @@ fn spawn_board_components(
 
         match cell_type {
             CellType::Wall(_) => commands.spawn((position, sprite_bundle)),
-            CellType::Dot => commands.spawn((sprite_bundle, Dot)),
-            CellType::PowerPill => commands.spawn((sprite_bundle, PowerPill)),
+            CellType::Dot => commands.spawn((
+                sprite_bundle,
+                Pickup::new(DOT_SCORE),
+                position,
+                Collider::new(PICKUP_RANGE),
+                Dot,
+            )),
+            CellType::PowerPill => commands.spawn((
+                sprite_bundle,
+                Pickup::new(POWERPILL_SCORE),
+                position,
+                Collider::new(PICKUP_RANGE),
+                PowerPill,
+            )),
             _ => continue,
         };
     }

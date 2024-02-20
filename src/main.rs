@@ -16,6 +16,7 @@ clippy::nursery,
 #![allow(clippy::needless_pass_by_value)]
 mod board;
 mod camera;
+mod collision;
 mod debug;
 mod input;
 mod movement;
@@ -26,6 +27,7 @@ use bevy::prelude::*;
 use bevy::window::WindowResolution;
 use board::BoardPlugin;
 use camera::CameraPlugin;
+use collision::CollisionPlugin;
 use debug::DebugGizmos;
 use debug::DebugPlugin;
 use input::InputPlugin;
@@ -42,8 +44,13 @@ const STARTING_POSITION_Y: f32 = 23.;
 const STARTING_DIRECTION: Directions = Directions::Down;
 const PLAYER_VELOCITY: f32 = 8.;
 
+const POWERPILL_SCORE: usize = 50;
+const DOT_SCORE: usize = 10;
+const PICKUP_RANGE: f32 = 0.5;
+
 #[derive(Default, Resource)]
 pub struct GameState {
+    pub score: usize,
     pub show_grid: bool,
     pub is_debug: bool,
 }
@@ -75,6 +82,7 @@ fn main() {
         .add_plugins(PlayerPlugin)
         .add_plugins(MovementPlugin)
         .add_plugins(BoardPlugin)
+        .add_plugins(CollisionPlugin)
         .add_plugins(InputPlugin)
         .add_plugins(DebugPlugin)
         .insert_resource(GameState::default())

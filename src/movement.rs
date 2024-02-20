@@ -83,6 +83,10 @@ impl Position {
             y: dest_y,
         }
     }
+
+    pub fn get_distance(&self, other: &Self) -> f32 {
+        (self.x - other.x).abs() + (self.y - other.y).abs()
+    }
 }
 
 impl From<&Position> for Transform {
