@@ -23,6 +23,7 @@ mod input;
 mod movement;
 mod pickup;
 mod player;
+mod spritesheet;
 
 use bevy::prelude::*;
 use bevy::window::WindowResolution;
@@ -36,6 +37,7 @@ use input::InputPlugin;
 use movement::Directions;
 use movement::MovementPlugin;
 use player::PlayerPlugin;
+use spritesheet::AnimatedSpritePlugin;
 
 const WINDOW_WIDTH: f32 = 448.0;
 const WINDOW_HEIGHT: f32 = 496.0;
@@ -84,6 +86,7 @@ fn main() {
         .add_plugins(AssetLoaderPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(MovementPlugin)
+        .add_plugins(AnimatedSpritePlugin)
         .add_plugins(BoardPlugin)
         .add_plugins(CollisionPlugin)
         .add_plugins(InputPlugin)

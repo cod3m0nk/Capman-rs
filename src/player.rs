@@ -6,6 +6,9 @@ use crate::movement::Directions;
 use crate::movement::MovingObjectBundle;
 use crate::movement::Position;
 use crate::movement::Velocity;
+use crate::spritesheet::AnimatedSpriteBundle;
+use crate::spritesheet::AnimationStrategy;
+use crate::spritesheet::SpriteSheetAnimator;
 use crate::PLAYER_VELOCITY;
 use crate::STARTING_DIRECTION;
 use crate::STARTING_POSITION_X;
@@ -17,31 +20,59 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_player)
-            .add_systems(Update, player_movement_control);
+            .add_systems(Update, player_movement_control)
+            .init_state::<PlayerState>();
     }
 }
 
 #[derive(Component)]
 pub struct Player;
 
-fn spawn_player(mut commands: Commands, game_assets: Res<GameAssetsLoader>) {
+#[derive(States, Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum PlayerState {
+    #[default]
+    Moving,
+    Idle,
+}
+
+fn spawn_player(
+    mut commands: Commands,
+    game_assets: Res<GameAssetsLoader>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+) {
     let position = Position::new(STARTING_POSITION_X, STARTING_POSITION_Y);
     let transform = Transform::from(&position);
+    let layout = TextureAtlasLayout::from_grid(Vec2::new(24., 24.), 3, 1, None, None);
+    let texture_atlas_layout = texture_atlas_layouts.add(layout);
+
     commands.spawn((
         MovingObjectBundle {
             position,
             velocity: Velocity::new(PLAYER_VELOCITY),
             dir: Direction::new(STARTING_DIRECTION, STARTING_DIRECTION),
         },
-        SpriteBundle {
-            texture: game_assets.get(GameAssets::Player),
-            sprite: Sprite {
-                anchor: bevy::sprite::Anchor::Center,
-                rect: Some(Rect::new(24., 0., 48., 24.)),
+        AnimatedSpriteBundle {
+            sprite_sheet_animator: SpriteSheetAnimator {
+                start: 0,
+                end: 2,
+                frame_rate: 10.,
+                strategy: AnimationStrategy::PingPong,
+                texture_atlas_layout: texture_atlas_layout.clone(),
                 ..Default::default()
             },
-            transform,
-            ..Default::default()
+            spritesheet_bundle: SpriteSheetBundle {
+                texture: game_assets.get(GameAssets::Player),
+                sprite: Sprite {
+                    anchor: bevy::sprite::Anchor::Center,
+                    ..Default::default()
+                },
+                atlas: TextureAtlas {
+                    layout: texture_atlas_layout,
+                    index: 0,
+                },
+                transform,
+                ..Default::default()
+            },
         },
         Player,
     ));

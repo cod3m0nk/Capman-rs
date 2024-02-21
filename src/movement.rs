@@ -1,6 +1,6 @@
 use crate::{
     board::{Board, CellType},
-    player::Player,
+    player::{Player, PlayerState},
     CELL_SIZE,
 };
 use bevy::prelude::*;
@@ -51,7 +51,7 @@ impl Direction {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, PartialEq)]
 pub struct Position {
     x: f32,
     y: f32,
@@ -68,6 +68,11 @@ impl Position {
             self.y.mul_add(-CELL_SIZE, -(CELL_SIZE / 2.)),
             0.,
         )
+    }
+
+    pub fn write_into(&self, transform: &mut Transform) {
+        transform.translation.x = self.x.mul_add(CELL_SIZE, CELL_SIZE / 2.);
+        transform.translation.y = self.y.mul_add(-CELL_SIZE, -(CELL_SIZE / 2.));
     }
 
     fn get_neighbour(&self, dir: Directions) -> Self {
@@ -99,12 +104,20 @@ fn update_player_position(
     mut query: Query<(&Velocity, &mut Direction, &mut Position, &mut Transform), With<Player>>,
     time: Res<Time>,
     board: Res<Board>,
+    mut next_state: ResMut<NextState<PlayerState>>,
 ) {
     let (velocity, mut direction, mut position, mut transform) = query.single_mut();
+    let start_pos = Position::new(position.x, position.y);
 
     let distance = velocity.value * time.delta_seconds();
     move_player(&mut direction, &mut position, &board, distance);
-    *transform = position.get_transform();
+    position.write_into(&mut transform);
+
+    if start_pos == *position {
+        next_state.set(PlayerState::Idle);
+    } else {
+        next_state.set(PlayerState::Moving);
+    }
 }
 
 fn move_player(direction: &mut Direction, position: &mut Position, board: &Board, distance: f32) {
