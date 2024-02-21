@@ -1,4 +1,4 @@
-use crate::{board::Board, GameState, CELL_SIZE};
+use crate::{board::Board, state::GameGlobals, CELL_SIZE};
 use bevy::prelude::*;
 
 pub struct DebugPlugin;
@@ -17,8 +17,8 @@ fn setup(mut config_store: ResMut<GizmoConfigStore>) {
     config.line_width = 0.1;
 }
 
-fn draw_debug(gizmos: Gizmos<DebugGizmos>, board: Res<Board>, game_state: Res<GameState>) {
-    if game_state.show_grid {
+fn draw_debug(gizmos: Gizmos<DebugGizmos>, board: Res<Board>, game_globals: Res<GameGlobals>) {
+    if game_globals.show_grid {
         draw_grid(board, gizmos);
     }
 }

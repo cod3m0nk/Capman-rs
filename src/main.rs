@@ -24,6 +24,7 @@ mod movement;
 mod pickup;
 mod player;
 mod spritesheet;
+mod state;
 
 use bevy::prelude::*;
 use bevy::window::WindowResolution;
@@ -38,6 +39,8 @@ use movement::Directions;
 use movement::MovementPlugin;
 use player::PlayerPlugin;
 use spritesheet::AnimatedSpritePlugin;
+use state::GameGlobals;
+use state::StatePlugin;
 
 const WINDOW_WIDTH: f32 = 448.0;
 const WINDOW_HEIGHT: f32 = 496.0;
@@ -51,13 +54,6 @@ const PLAYER_VELOCITY: f32 = 8.;
 const POWERPILL_SCORE: usize = 50;
 const DOT_SCORE: usize = 10;
 const PICKUP_RANGE: f32 = 0.5;
-
-#[derive(Default, Resource)]
-pub struct GameState {
-    pub score: usize,
-    pub show_grid: bool,
-    pub is_debug: bool,
-}
 
 fn main() {
     App::new()
@@ -91,6 +87,7 @@ fn main() {
         .add_plugins(CollisionPlugin)
         .add_plugins(InputPlugin)
         .add_plugins(DebugPlugin)
-        .insert_resource(GameState::default())
+        .add_plugins(StatePlugin)
+        .insert_resource(GameGlobals::default())
         .run();
 }

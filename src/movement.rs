@@ -1,6 +1,7 @@
 use crate::{
     board::{Board, CellType},
     player::{Player, PlayerState},
+    state::GameState,
     CELL_SIZE,
 };
 use bevy::prelude::*;
@@ -9,7 +10,10 @@ pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_player_position);
+        app.add_systems(
+            Update,
+            update_player_position.run_if(in_state(GameState::Running)),
+        );
     }
 }
 

@@ -1,6 +1,7 @@
 use crate::{
     movement::Direction,
     player::{Player, PlayerState},
+    state::GameState,
 };
 use bevy::prelude::*;
 
@@ -9,7 +10,8 @@ impl Plugin for AnimatedSpritePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             PostUpdate,
-            update_player.run_if(in_state(PlayerState::Moving)),
+            update_player
+                .run_if(in_state(PlayerState::Moving).and_then(in_state(GameState::Running))),
         );
     }
 }

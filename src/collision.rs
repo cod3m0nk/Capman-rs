@@ -2,7 +2,7 @@ use crate::{
     movement::Position,
     pickup::{Dot, Pickup, PowerPill},
     player::Player,
-    GameState,
+    state::GameGlobals,
 };
 use bevy::prelude::*;
 
@@ -30,18 +30,18 @@ fn player_collision_detection(
     query_powerpill: Query<(Entity, &Position, &Collider, &Pickup), With<PowerPill>>,
     query_dot: Query<(Entity, &Position, &Collider, &Pickup), With<Dot>>,
     player_query: Query<&Position, With<Player>>,
-    mut game_state: ResMut<GameState>,
+    mut game_globals: ResMut<GameGlobals>,
 ) {
     let player_position = player_query.get_single().unwrap();
     for (entity, position, collider, pickup) in query_powerpill.iter() {
         if player_position.get_distance(position) < collider.distance {
-            game_state.score += pickup.get_value();
+            game_globals.score += pickup.get_value();
             commnands.entity(entity).despawn_recursive();
         }
     }
     for (entity, position, collider, pickup) in query_dot.iter() {
         if player_position.get_distance(position) < collider.distance {
-            game_state.score += pickup.get_value();
+            game_globals.score += pickup.get_value();
             commnands.entity(entity).despawn_recursive();
         }
     }
