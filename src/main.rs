@@ -48,7 +48,7 @@ const CELL_SIZE: f32 = 16.;
 
 const STARTING_POSITION_X: f32 = 14.;
 const STARTING_POSITION_Y: f32 = 23.;
-const STARTING_DIRECTION: Directions = Directions::Down;
+const STARTING_DIRECTION: Directions = Directions::Left;
 const PLAYER_VELOCITY: f32 = 8.;
 
 const POWERPILL_SCORE: usize = 50;

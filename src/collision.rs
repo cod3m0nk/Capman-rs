@@ -20,7 +20,7 @@ pub struct Collider {
 }
 
 impl Collider {
-    pub fn new(distance: f32) -> Self {
+    pub const fn new(distance: f32) -> Self {
         Self { distance }
     }
 }
