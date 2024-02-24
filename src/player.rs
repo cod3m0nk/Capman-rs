@@ -90,5 +90,17 @@ fn player_movement_control(
             InputDirectionEvent::Left => direction.next = Directions::Left,
             InputDirectionEvent::Right => direction.next = Directions::Right,
         }
+
+        // If the next direction is opposite to the current one update the
+        // direction immediately
+        match (direction.next, direction.current) {
+            (Directions::Up, Directions::Down)
+            | (Directions::Down, Directions::Up)
+            | (Directions::Left, Directions::Right)
+            | (Directions::Right, Directions::Left) => {
+                direction.current = direction.next;
+            }
+            _ => (),
+        }
     }
 }
