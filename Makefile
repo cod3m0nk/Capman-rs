@@ -8,9 +8,10 @@ build :
 	cargo build --target wasm32-unknown-unknown --profile wasm-release
 
 copy :
-	mkdir -p  ./html/assets/sprites
+	mkdir -p  ./html/assets/sprites ./html/assets/fonts
 	cp -r ./assets/html/index.html ./html/
 	cp -r ./assets/sprites/* ./html/assets/sprites/
+	cp -r ./assets/fonts/* ./html/assets/fonts/
 	wasm-bindgen --no-typescript --target web \
                  --out-dir ./html/ \
                  --out-name "$(project)" \

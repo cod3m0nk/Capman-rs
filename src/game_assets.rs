@@ -10,6 +10,7 @@ const WALLBOTTOMLEFT: &str = "sprites/bottom-left.png";
 const WALLBOTTOMRIGHT: &str = "sprites/bottom-right.png";
 const DOT: &str = "sprites/dot.png";
 const POWERPILL: &str = "sprites/powerpill.png";
+const UI_FONT: &str = "fonts/pixelplay.ttf";
 
 pub struct AssetLoaderPlugin;
 
@@ -32,6 +33,11 @@ pub enum GameAssets {
     WallBottomRight,
     Dot,
     PowerPill,
+}
+
+#[derive(Resource)]
+pub struct UiFont {
+    pub default: Handle<Font>,
 }
 
 impl GameAssets {
@@ -81,9 +87,16 @@ impl GameAssetsLoader {
     }
 }
 
-fn load_assets(mut game_assets: ResMut<GameAssetsLoader>, asset_server: Res<AssetServer>) {
+fn load_assets(
+    mut commands: Commands,
+    mut game_assets: ResMut<GameAssetsLoader>,
+    asset_server: Res<AssetServer>,
+) {
     for asset in GameAssets::iterator() {
         let handle = asset_server.load(asset.get_file());
         game_assets.assets.insert(*asset, handle);
     }
+
+    let handle: Handle<Font> = asset_server.load(UI_FONT);
+    commands.insert_resource(UiFont { default: handle });
 }

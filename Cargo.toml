@@ -18,6 +18,7 @@ features = [
     "bevy_winit",
     "bevy_gizmos",
     "png",
+    "bevy_ui",
 ]
 
 [target.'cfg(target_family = "wasm")'.dependencies.bevy]

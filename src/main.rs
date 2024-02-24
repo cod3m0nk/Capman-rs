@@ -25,6 +25,7 @@ mod pickup;
 mod player;
 mod spritesheet;
 mod state;
+mod ui;
 
 use bevy::prelude::*;
 use bevy::window::WindowResolution;
@@ -42,9 +43,13 @@ use spritesheet::AnimatedSpritePlugin;
 use state::GameGlobals;
 use state::StatePlugin;
 
+const FONT_SIZE: f32 = 20.0;
+const UI_HEIGHT: f32 = 50.;
 const WINDOW_WIDTH: f32 = 448.0;
 const WINDOW_HEIGHT: f32 = 496.0;
 const CELL_SIZE: f32 = 16.;
+const BOARD_WIDTH: f32 = 28.;
+const BOARD_HEIGHT: f32 = 31.;
 
 const STARTING_POSITION_X: f32 = 14.;
 const STARTING_POSITION_Y: f32 = 23.;
@@ -88,6 +93,7 @@ fn main() {
         .add_plugins(InputPlugin)
         .add_plugins(DebugPlugin)
         .add_plugins(StatePlugin)
+        .add_plugins(ui::GameUiPlugin)
         .insert_resource(GameGlobals::default())
         .run();
 }
