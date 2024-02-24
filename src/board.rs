@@ -1,5 +1,6 @@
 use crate::{
     collision::Collider,
+    enemies::Enemy,
     game_assets::{GameAssets, GameAssetsLoader},
     movement::Position,
     pickup::{Dot, Pickup, PowerPill},
@@ -24,6 +25,7 @@ pub struct Board {
     columns: isize,
     rows: isize,
     cells: Vec<CellType>,
+    enemies: Vec<Enemy>,
 }
 
 #[derive(Component)]
@@ -102,8 +104,13 @@ impl Board {
         }
         &self.cells[y as usize * self.columns as usize + x as usize]
     }
+
     pub const fn get_dimensions(&self) -> (usize, usize) {
         (self.rows as usize, self.columns as usize)
+    }
+
+    pub const fn get_enemies(&self) -> &Vec<Enemy> {
+        &self.enemies
     }
 }
 
@@ -124,7 +131,9 @@ impl From<&str> for Board {
                 ('|', _, '+', _) | ('+', _, '-', _) => WallType::BottomRight,
                 ('|', _, _, '+') | ('+', _, _, '-') => WallType::BottomLeft,
                 _ => {
-                    unreachable!("Invalid wall type {column} {row} u{up} d{down} l{left} r{right}",)
+                    unreachable!(
+                        "Invalid wall type {column} {row} u:{up} d:{down} l:{left} r:{right}",
+                    )
                 }
             }
         }
@@ -144,10 +153,11 @@ impl From<&str> for Board {
             columns: 0,
             rows: 0,
             cells: Vec::with_capacity(input.len()),
+            enemies: vec![],
         };
 
         for line in input.lines() {
-            if !line.contains(['+', '-', '|', 'O', '.']) {
+            if !line.contains(['+', '-', '|', 'O', '.']) || line.starts_with("//") {
                 continue;
             }
             if board.rows == 0 {
@@ -170,6 +180,12 @@ impl From<&str> for Board {
                     'O' => CellType::PowerPill,
                     '.' => CellType::Dot,
                     ' ' => CellType::Empty,
+                    '1' => {
+                        board
+                            .enemies
+                            .push(Enemy::new(Vec2::new(column as f32, board.rows as f32)));
+                        CellType::Empty
+                    }
                     cell => {
                         unreachable!("invalid board cell: \"{cell}\"");
                     }

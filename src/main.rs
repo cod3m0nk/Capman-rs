@@ -18,6 +18,7 @@ mod board;
 mod camera;
 mod collision;
 mod debug;
+mod enemies;
 mod game_assets;
 mod input;
 mod movement;
@@ -34,6 +35,7 @@ use camera::CameraPlugin;
 use collision::CollisionPlugin;
 use debug::DebugGizmos;
 use debug::DebugPlugin;
+use enemies::EnemiesPlugin;
 use game_assets::AssetLoaderPlugin;
 use input::InputPlugin;
 use movement::Directions;
@@ -86,6 +88,7 @@ fn main() {
         .add_plugins(CameraPlugin)
         .add_plugins(AssetLoaderPlugin)
         .add_plugins(PlayerPlugin)
+        .add_plugins(EnemiesPlugin)
         .add_plugins(MovementPlugin)
         .add_plugins(AnimatedSpritePlugin)
         .add_plugins(BoardPlugin)

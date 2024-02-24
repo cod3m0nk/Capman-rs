@@ -1,0 +1,72 @@
+use crate::{
+    board::Board,
+    game_assets::{GameAssets, GameAssetsLoader},
+    movement::{Direction, MovingObjectBundle, Position, Velocity},
+    spritesheet::{AnimatedSpriteBundle, AnimationStrategy, SpriteSheetAnimator},
+    PLAYER_VELOCITY, STARTING_DIRECTION,
+};
+use bevy::prelude::*;
+
+pub struct EnemiesPlugin;
+
+impl Plugin for EnemiesPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, spawn_enemies);
+    }
+}
+
+#[derive(Component, Clone, Copy)]
+pub struct Enemy {
+    start_position: Vec2,
+}
+
+impl Enemy {
+    pub const fn new(start_position: Vec2) -> Self {
+        Self { start_position }
+    }
+}
+
+fn spawn_enemies(
+    mut commands: Commands,
+    game_assets: Res<GameAssetsLoader>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    board: Res<Board>,
+) {
+    for enemy in board.get_enemies() {
+        let position = Position::new(enemy.start_position.x, enemy.start_position.y);
+        let transform = Transform::from(&position);
+        let layout = TextureAtlasLayout::from_grid(Vec2::new(24., 24.), 3, 1, None, None);
+        let texture_atlas_layout = texture_atlas_layouts.add(layout);
+        commands.spawn((
+            MovingObjectBundle {
+                position,
+                velocity: Velocity::new(PLAYER_VELOCITY),
+                dir: Direction::new(STARTING_DIRECTION, STARTING_DIRECTION),
+            },
+            AnimatedSpriteBundle {
+                sprite_sheet_animator: SpriteSheetAnimator {
+                    start: 0,
+                    end: 2,
+                    frame_rate: 10.,
+                    strategy: AnimationStrategy::PingPong,
+                    texture_atlas_layout: texture_atlas_layout.clone(),
+                    ..Default::default()
+                },
+                spritesheet_bundle: SpriteSheetBundle {
+                    texture: game_assets.get(GameAssets::Blinkus),
+                    sprite: Sprite {
+                        anchor: bevy::sprite::Anchor::Center,
+                        ..Default::default()
+                    },
+                    atlas: TextureAtlas {
+                        layout: texture_atlas_layout,
+                        index: 0,
+                    },
+                    transform,
+                    ..Default::default()
+                },
+            },
+            *enemy,
+        ));
+    }
+}

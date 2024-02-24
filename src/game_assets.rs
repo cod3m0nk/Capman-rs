@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 
 const PLAYER: &str = "sprites/capman.png";
-// const ENEMY: &str = "";
+const BLINKUS: &str = "sprites/blinkus.png";
 const WALLVERTICAL: &str = "sprites/vertical.png";
 const WALLHORIZONTAL: &str = "sprites/horizontal.png";
 const WALLTOPLEFT: &str = "sprites/top-left.png";
@@ -24,7 +24,7 @@ impl Plugin for AssetLoaderPlugin {
 #[derive(Eq, Hash, PartialEq, Clone, Copy)]
 pub enum GameAssets {
     Player,
-    // Enemy,
+    Blinkus,
     WallVertical,
     WallHorizontal,
     WallTopLeft,
@@ -42,9 +42,9 @@ pub struct UiFont {
 
 impl GameAssets {
     fn iterator() -> std::slice::Iter<'static, Self> {
-        static GAME_ASSETS: [GameAssets; 9] = [
+        static GAME_ASSETS: [GameAssets; 10] = [
             GameAssets::Player,
-            // GameAssets::Enemy,
+            GameAssets::Blinkus,
             GameAssets::WallVertical,
             GameAssets::WallHorizontal,
             GameAssets::WallTopLeft,
@@ -60,7 +60,7 @@ impl GameAssets {
     const fn get_file(&self) -> &str {
         match self {
             Self::Player => PLAYER,
-            // Self::Enemy => ENEMY,
+            Self::Blinkus => BLINKUS,
             Self::WallVertical => WALLVERTICAL,
             Self::WallHorizontal => WALLHORIZONTAL,
             Self::WallTopLeft => WALLTOPLEFT,
