@@ -1,8 +1,8 @@
 use crate::{
     collision::Collider,
-    enemies::Enemy,
+    enemies::{Enemy, EnemyAI},
     game_assets::{GameAssets, GameAssetsLoader},
-    movement::Position,
+    movement::{Directions, Position},
     pickup::{Dot, Pickup, PowerPill},
     CELL_SIZE, DOT_SCORE, PICKUP_RANGE, POWERPILL_SCORE,
 };
@@ -28,7 +28,7 @@ pub struct Board {
     enemies: Vec<Enemy>,
 }
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy)]
 pub enum CellType {
     Wall(WallType),
     Dot,
@@ -37,6 +37,7 @@ pub enum CellType {
     Outside,
 }
 
+#[derive(Clone, Copy)]
 pub enum WallType {
     Vertical,
     Horizontal,
@@ -95,14 +96,24 @@ fn spawn_board_components(
 }
 
 impl Board {
-    pub fn get_cell(&self, x: f32, y: f32) -> &CellType {
+    pub fn get_cell(&self, x: f32, y: f32) -> CellType {
         if x < 0. || x >= self.columns as f32 {
-            return &CellType::Outside;
+            return CellType::Outside;
         }
         if y < 0. || y >= self.rows as f32 {
-            return &CellType::Outside;
+            return CellType::Outside;
         }
-        &self.cells[y as usize * self.columns as usize + x as usize]
+        self.cells[y as usize * self.columns as usize + x as usize]
+    }
+
+    pub fn get_neighbours(&self, x: f32, y: f32) -> Vec<(Directions, CellType)> {
+        let mut result = Vec::with_capacity(4);
+        for &dir in Directions::iterator() {
+            let pos = crate::movement::Position { x, y }.get_adjacent(dir);
+            let cell = self.get_cell(pos.x, pos.y);
+            result.push((dir, cell));
+        }
+        result
     }
 
     pub const fn get_dimensions(&self) -> (usize, usize) {
@@ -139,7 +150,7 @@ impl From<&str> for Board {
         }
 
         fn get_char(input: &str, row: isize, column: isize, columns: isize) -> char {
-            // At this point input still has breakline charactes at the end of
+            // At this point input still has break line characters at the end of
             // each row. We need to add 1 to each row to account for that while
             // calculating the index
             let index = (row * (columns + 1) + column) as usize;
@@ -181,9 +192,10 @@ impl From<&str> for Board {
                     '.' => CellType::Dot,
                     ' ' => CellType::Empty,
                     '1' => {
-                        board
-                            .enemies
-                            .push(Enemy::new(Vec2::new(column as f32, board.rows as f32)));
+                        board.enemies.push(Enemy::new(
+                            Vec2::new(column as f32, board.rows as f32),
+                            EnemyAI::Random,
+                        ));
                         CellType::Empty
                     }
                     cell => {
@@ -199,7 +211,7 @@ impl From<&str> for Board {
 }
 
 impl CellType {
-    const fn get_asset(&self) -> Option<GameAssets> {
+    const fn get_asset(self) -> Option<GameAssets> {
         match self {
             Self::Wall(WallType::Vertical) => Some(GameAssets::WallVertical),
             Self::Wall(WallType::Horizontal) => Some(GameAssets::WallHorizontal),

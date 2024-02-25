@@ -1,11 +1,12 @@
 use crate::{
-    board::Board,
+    board::{Board, CellType},
     game_assets::{GameAssets, GameAssetsLoader},
-    movement::{Direction, MovingObjectBundle, Position, Velocity},
+    movement::{Direction, Directions, MovingObjectBundle, Position, Velocity},
     spritesheet::{AnimatedSpriteBundle, AnimationStrategy, SpriteSheetAnimator},
     PLAYER_VELOCITY, STARTING_DIRECTION,
 };
 use bevy::prelude::*;
+use rand::{seq::SliceRandom, thread_rng};
 
 pub struct EnemiesPlugin;
 
@@ -18,11 +19,35 @@ impl Plugin for EnemiesPlugin {
 #[derive(Component, Clone, Copy)]
 pub struct Enemy {
     start_position: Vec2,
+    enemy_ai: EnemyAI,
 }
 
 impl Enemy {
-    pub const fn new(start_position: Vec2) -> Self {
-        Self { start_position }
+    pub const fn new(start_position: Vec2, _enemy_ai: EnemyAI) -> Self {
+        Self {
+            start_position,
+            enemy_ai: EnemyAI::Random,
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+pub enum EnemyAI {
+    Random,
+}
+
+impl Enemy {
+    pub fn get_next_direction(self, pos: &Position, dir: &Direction, board: &Board) -> Directions {
+        match self.enemy_ai {
+            EnemyAI::Random => {
+                let mut directions = board.get_neighbours(pos.x, pos.y);
+                directions
+                    .retain(|(_, cell)| !matches!(cell, CellType::Wall(_) | CellType::Outside));
+                directions.retain(|(new_dir, _)| *new_dir != dir.get_opposite());
+                let mut rng = thread_rng();
+                directions.choose(&mut rng).unwrap().0
+            }
+        }
     }
 }
 

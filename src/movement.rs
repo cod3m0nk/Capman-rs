@@ -1,5 +1,6 @@
 use crate::{
     board::{Board, CellType},
+    enemies::Enemy,
     player::{Player, PlayerState},
     state::GameState,
     CELL_SIZE,
@@ -12,7 +13,10 @@ impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            update_player_position.run_if(in_state(GameState::Running)),
+            (
+                update_player_position.run_if(in_state(GameState::Running)),
+                update_enemy_position.run_if(in_state(GameState::Running)),
+            ),
         );
     }
 }
@@ -43,7 +47,19 @@ pub enum Directions {
     Right,
 }
 
-#[derive(Component)]
+impl Directions {
+    pub fn iterator() -> std::slice::Iter<'static, Self> {
+        static DIRECTIONS: [Directions; 4] = [
+            Directions::Up,
+            Directions::Right,
+            Directions::Down,
+            Directions::Left,
+        ];
+        DIRECTIONS.iter()
+    }
+}
+
+#[derive(Component, PartialEq, Eq)]
 pub struct Direction {
     pub current: Directions,
     pub next: Directions,
@@ -53,12 +69,21 @@ impl Direction {
     pub const fn new(current: Directions, next: Directions) -> Self {
         Self { current, next }
     }
+
+    pub const fn get_opposite(&self) -> Directions {
+        match self.current {
+            Directions::Up => Directions::Down,
+            Directions::Down => Directions::Up,
+            Directions::Left => Directions::Right,
+            Directions::Right => Directions::Left,
+        }
+    }
 }
 
 #[derive(Component, PartialEq)]
 pub struct Position {
-    x: f32,
-    y: f32,
+    pub x: f32,
+    pub y: f32,
 }
 
 impl Position {
@@ -79,7 +104,7 @@ impl Position {
         transform.translation.y = self.y.mul_add(-CELL_SIZE, -(CELL_SIZE / 2.));
     }
 
-    fn get_neighbour(&self, dir: Directions) -> Self {
+    pub fn get_adjacent(&self, dir: Directions) -> Self {
         let (mut dest_x, mut dest_y) = (self.x, self.y);
         match dir {
             Directions::Up => dest_y = dest_y.ceil() - 1.,
@@ -128,7 +153,7 @@ fn move_player(direction: &mut Direction, position: &mut Position, board: &Board
     let mut distance = distance;
     while distance > 0. {
         update_direction(position, direction, board);
-        let dest = position.get_neighbour(direction.current);
+        let dest = position.get_adjacent(direction.current);
         if matches!(board.get_cell(dest.x, dest.y), CellType::Wall(_)) {
             break;
         }
@@ -144,7 +169,7 @@ fn update_direction(position: &Position, direction: &mut Direction, board: &Boar
         return;
     }
 
-    let next = position.get_neighbour(direction.next);
+    let next = position.get_adjacent(direction.next);
     if !matches!(board.get_cell(next.x, next.y), CellType::Wall(_)) {
         direction.current = direction.next;
     }
@@ -168,4 +193,56 @@ fn update_position(position: &mut Position, dest: &Position, distance: f32) -> f
         position.x += delta_x.signum() * distance;
     }
     0.
+}
+
+fn update_enemy_position(
+    mut query: Query<(
+        &Velocity,
+        &mut Direction,
+        &mut Position,
+        &mut Transform,
+        &Enemy,
+    )>,
+    time: Res<Time>,
+    board: Res<Board>,
+) {
+    for enemy in &mut query {
+        let (velocity, mut direction, mut position, mut transform, enemy) = enemy;
+
+        let distance = velocity.value * time.delta_seconds();
+        move_enemy(&mut direction, &mut position, &board, distance, *enemy);
+        position.write_into(&mut transform);
+    }
+}
+
+fn move_enemy(
+    direction: &mut Direction,
+    position: &mut Position,
+    board: &Board,
+    distance: f32,
+    enemy: Enemy,
+) {
+    let mut distance = distance;
+    while distance > 0. {
+        update_enemy_direction(position, direction, board, enemy);
+        let dest = position.get_adjacent(direction.current);
+        if matches!(board.get_cell(dest.x, dest.y), CellType::Wall(_)) {
+            unreachable!();
+        }
+        distance = update_position(position, &dest, distance);
+    }
+}
+
+fn update_enemy_direction(
+    position: &Position,
+    direction: &mut Direction,
+    board: &Board,
+    enemy: Enemy,
+) {
+    if (position.x.floor() - position.x).abs() > f32::EPSILON
+        || (position.y.floor() - position.y).abs() > f32::EPSILON
+    {
+        return;
+    }
+    direction.current = enemy.get_next_direction(position, direction, board);
 }
