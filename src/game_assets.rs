@@ -8,6 +8,7 @@ const WALLTOPLEFT: &str = "sprites/top-left.png";
 const WALLTOPRIGHT: &str = "sprites/top-right.png";
 const WALLBOTTOMLEFT: &str = "sprites/bottom-left.png";
 const WALLBOTTOMRIGHT: &str = "sprites/bottom-right.png";
+const DOOR: &str = "sprites/door.png";
 const DOT: &str = "sprites/dot.png";
 const POWERPILL: &str = "sprites/powerpill.png";
 const UI_FONT: &str = "fonts/pixelplay.ttf";
@@ -33,6 +34,7 @@ pub enum GameAssets {
     WallBottomRight,
     Dot,
     PowerPill,
+    Door,
 }
 
 #[derive(Resource)]
@@ -42,7 +44,7 @@ pub struct UiFont {
 
 impl GameAssets {
     fn iterator() -> std::slice::Iter<'static, Self> {
-        static GAME_ASSETS: [GameAssets; 10] = [
+        static GAME_ASSETS: [GameAssets; 11] = [
             GameAssets::Player,
             GameAssets::Blinkus,
             GameAssets::WallVertical,
@@ -51,6 +53,7 @@ impl GameAssets {
             GameAssets::WallTopRight,
             GameAssets::WallBottomLeft,
             GameAssets::WallBottomRight,
+            GameAssets::Door,
             GameAssets::Dot,
             GameAssets::PowerPill,
         ];
@@ -67,6 +70,7 @@ impl GameAssets {
             Self::WallTopRight => WALLTOPRIGHT,
             Self::WallBottomLeft => WALLBOTTOMLEFT,
             Self::WallBottomRight => WALLBOTTOMRIGHT,
+            Self::Door => DOOR,
             Self::Dot => DOT,
             Self::PowerPill => POWERPILL,
         }

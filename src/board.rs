@@ -45,6 +45,7 @@ pub enum WallType {
     TopRight,
     BottomLeft,
     BottomRight,
+    Door,
 }
 
 fn spawn_board_components(
@@ -188,6 +189,7 @@ impl From<&str> for Board {
                     }
                     '-' => CellType::Wall(WallType::Horizontal),
                     '|' => CellType::Wall(WallType::Vertical),
+                    '=' => CellType::Wall(WallType::Door),
                     'O' => CellType::PowerPill,
                     '.' => CellType::Dot,
                     ' ' => CellType::Empty,
@@ -219,6 +221,7 @@ impl CellType {
             Self::Wall(WallType::TopRight) => Some(GameAssets::WallTopRight),
             Self::Wall(WallType::BottomLeft) => Some(GameAssets::WallBottomLeft),
             Self::Wall(WallType::BottomRight) => Some(GameAssets::WallBottomRight),
+            Self::Wall(WallType::Door) => Some(GameAssets::Door),
             Self::Dot => Some(GameAssets::Dot),
             Self::PowerPill => Some(GameAssets::PowerPill),
             Self::Empty | Self::Outside => None,
