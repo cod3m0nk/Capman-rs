@@ -1,8 +1,10 @@
+use crate::board::CellType;
 use crate::game_assets::GameAssets;
 use crate::game_assets::GameAssetsLoader;
 use crate::input::InputDirectionEvent;
 use crate::movement::Direction;
 use crate::movement::Directions;
+use crate::movement::MovableObject;
 use crate::movement::MovingObjectBundle;
 use crate::movement::Position;
 use crate::movement::Velocity;
@@ -33,6 +35,19 @@ pub enum PlayerState {
     #[default]
     Moving,
     Idle,
+}
+
+impl MovableObject for Player {
+    fn update_direction(&self, pos: &Position, dir: &mut Direction, board: &crate::board::Board) {
+        if dir.current == dir.next {
+            return;
+        }
+
+        let next = pos.get_target_cell(dir.next);
+        if !matches!(board.get_cell(&next), CellType::Wall(_)) {
+            dir.current = dir.next;
+        }
+    }
 }
 
 fn spawn_player(

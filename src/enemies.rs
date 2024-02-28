@@ -1,7 +1,7 @@
 use crate::{
     board::{Board, CellType},
     game_assets::{GameAssets, GameAssetsLoader},
-    movement::{Direction, Directions, MovingObjectBundle, Position, Velocity},
+    movement::{Direction, MovableObject, MovingObjectBundle, Position, Velocity},
     spritesheet::{AnimatedSpriteBundle, AnimationStrategy, SpriteSheetAnimator},
     PLAYER_VELOCITY, STARTING_DIRECTION,
 };
@@ -36,9 +36,9 @@ pub enum EnemyAI {
     Random,
 }
 
-impl Enemy {
-    pub fn get_next_direction(self, pos: &Position, dir: &Direction, board: &Board) -> Directions {
-        match self.enemy_ai {
+impl MovableObject for Enemy {
+    fn update_direction(&self, pos: &Position, dir: &mut Direction, board: &Board) {
+        dir.current = match self.enemy_ai {
             EnemyAI::Random => {
                 let mut directions = board.get_neighbours(pos.x, pos.y);
                 directions

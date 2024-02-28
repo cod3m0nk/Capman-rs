@@ -28,6 +28,10 @@ pub struct MovingObjectBundle {
     pub dir: Direction,
 }
 
+pub trait MovableObject {
+    fn update_direction(&self, pos: &Position, dir: &mut Direction, board: &Board);
+}
+
 #[derive(Component)]
 pub struct Velocity {
     value: f32,
@@ -150,16 +154,22 @@ impl From<&Position> for Transform {
 }
 
 fn update_player_position(
-    mut query: Query<(&Velocity, &mut Direction, &mut Position, &mut Transform), With<Player>>,
+    mut query: Query<(
+        &Velocity,
+        &mut Direction,
+        &mut Position,
+        &mut Transform,
+        &Player,
+    )>,
     time: Res<Time>,
     board: Res<Board>,
     mut next_state: ResMut<NextState<PlayerState>>,
 ) {
-    let (velocity, mut direction, mut position, mut transform) = query.single_mut();
+    let (velocity, mut direction, mut position, mut transform, player) = query.single_mut();
     let start_pos = Position::new(position.x, position.y);
 
     let distance = velocity.value * time.delta_seconds();
-    move_player(&mut direction, &mut position, &board, distance);
+    move_object(&mut direction, &mut position, &board, distance, player);
     position.write_into(&mut transform);
 
     if start_pos == *position {
@@ -169,26 +179,43 @@ fn update_player_position(
     }
 }
 
-fn move_player(direction: &mut Direction, position: &mut Position, board: &Board, distance: f32) {
+fn update_enemy_position(
+    mut query: Query<(
+        &Velocity,
+        &mut Direction,
+        &mut Position,
+        &mut Transform,
+        &Enemy,
+    )>,
+    time: Res<Time>,
+    board: Res<Board>,
+) {
+    for enemy in &mut query {
+        let (velocity, mut direction, mut position, mut transform, enemy) = enemy;
+
+        let distance = velocity.value * time.delta_seconds();
+        move_object(&mut direction, &mut position, &board, distance, enemy);
+        position.write_into(&mut transform);
+    }
+}
+
+fn move_object(
+    direction: &mut Direction,
+    position: &mut Position,
+    board: &Board,
+    distance: f32,
+    object: &dyn MovableObject,
+) {
     let mut distance = distance;
     while distance > 0. {
-        update_direction(position, direction, board);
+        if position.is_grid_aligned() {
+            object.update_direction(position, direction, board);
+        }
         let dest = position.get_target_cell(direction.current);
         if matches!(board.get_cell(&dest), CellType::Wall(_)) {
             break;
         }
         distance = update_position(position, &dest, distance);
-    }
-}
-
-fn update_direction(position: &Position, direction: &mut Direction, board: &Board) {
-    if direction.current == direction.next || !position.is_grid_aligned() {
-        return;
-    }
-
-    let next = position.get_target_cell(direction.next);
-    if !matches!(board.get_cell(&next), CellType::Wall(_)) {
-        direction.current = direction.next;
     }
 }
 
@@ -210,53 +237,4 @@ fn update_position(position: &mut Position, dest: &Position, distance: f32) -> f
         position.x += delta_x.signum() * distance;
     }
     0.
-}
-
-fn update_enemy_position(
-    mut query: Query<(
-        &Velocity,
-        &mut Direction,
-        &mut Position,
-        &mut Transform,
-        &Enemy,
-    )>,
-    time: Res<Time>,
-    board: Res<Board>,
-) {
-    for enemy in &mut query {
-        let (velocity, mut direction, mut position, mut transform, enemy) = enemy;
-
-        let distance = velocity.value * time.delta_seconds();
-        move_enemy(&mut direction, &mut position, &board, distance, *enemy);
-        position.write_into(&mut transform);
-    }
-}
-
-fn move_enemy(
-    direction: &mut Direction,
-    position: &mut Position,
-    board: &Board,
-    distance: f32,
-    enemy: Enemy,
-) {
-    let mut distance = distance;
-    while distance > 0. {
-        update_enemy_direction(position, direction, board, enemy);
-        let dest = position.get_target_cell(direction.current);
-        if matches!(board.get_cell(&dest), CellType::Wall(_)) {
-            unreachable!();
-        }
-        distance = update_position(position, &dest, distance);
-    }
-}
-
-fn update_enemy_direction(
-    position: &Position,
-    direction: &mut Direction,
-    board: &Board,
-    enemy: Enemy,
-) {
-    if position.is_grid_aligned() {
-        direction.current = enemy.get_next_direction(position, direction, board);
-    }
 }
