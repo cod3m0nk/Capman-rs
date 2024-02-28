@@ -97,7 +97,8 @@ fn spawn_board_components(
 }
 
 impl Board {
-    pub fn get_cell(&self, x: f32, y: f32) -> CellType {
+    pub fn get_cell(&self, pos: &Position) -> CellType {
+        let Position { x, y } = *pos;
         if x < 0. || x >= self.columns as f32 {
             return CellType::Outside;
         }
@@ -110,8 +111,8 @@ impl Board {
     pub fn get_neighbours(&self, x: f32, y: f32) -> Vec<(Directions, CellType)> {
         let mut result = Vec::with_capacity(4);
         for &dir in Directions::iterator() {
-            let pos = crate::movement::Position { x, y }.get_adjacent(dir);
-            let cell = self.get_cell(pos.x, pos.y);
+            let pos = crate::movement::Position { x, y }.get_target_cell(dir);
+            let cell = self.get_cell(&pos);
             result.push((dir, cell));
         }
         result

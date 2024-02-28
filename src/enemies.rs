@@ -43,7 +43,7 @@ impl Enemy {
                 let mut directions = board.get_neighbours(pos.x, pos.y);
                 directions
                     .retain(|(_, cell)| !matches!(cell, CellType::Wall(_) | CellType::Outside));
-                directions.retain(|(new_dir, _)| *new_dir != dir.get_opposite());
+                directions.retain(|(new_dir, _)| !dir.is_opposite(*new_dir));
                 let mut rng = thread_rng();
                 directions.choose(&mut rng).unwrap().0
             }

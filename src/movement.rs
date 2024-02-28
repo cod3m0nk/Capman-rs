@@ -70,13 +70,14 @@ impl Direction {
         Self { current, next }
     }
 
-    pub const fn get_opposite(&self) -> Directions {
-        match self.current {
-            Directions::Up => Directions::Down,
-            Directions::Down => Directions::Up,
-            Directions::Left => Directions::Right,
-            Directions::Right => Directions::Left,
-        }
+    pub const fn is_opposite(&self, other: Directions) -> bool {
+        matches!(
+            (self.current, other),
+            (Directions::Up, Directions::Down)
+                | (Directions::Down, Directions::Up)
+                | (Directions::Left, Directions::Right)
+                | (Directions::Right, Directions::Left)
+        )
     }
 }
 
@@ -104,7 +105,7 @@ impl Position {
         transform.translation.y = self.y.mul_add(-CELL_SIZE, -(CELL_SIZE / 2.));
     }
 
-    pub fn get_adjacent(&self, dir: Directions) -> Self {
+    pub fn get_target_cell(&self, dir: Directions) -> Self {
         let (mut dest_x, mut dest_y) = (self.x, self.y);
         match dir {
             Directions::Up => dest_y = dest_y.ceil() - 1.,
@@ -116,6 +117,25 @@ impl Position {
             x: dest_x,
             y: dest_y,
         }
+    }
+
+    /// This function is used to check if the coordinates are aligned on a grid.
+    ///  The function returns true if the coordinates are aligned precisely on
+    ///  the grid, otherwise false.
+    ///
+    /// ## Arguments
+    /// * `self` - A reference to the object containing x and y coordinates.
+    ///
+    /// ## Returns
+    /// * `bool` - Indicates if the coordinates are aligned on the grid.
+    ///
+    pub fn is_grid_aligned(&self) -> bool {
+        !((self.x.floor() - self.x).abs() > f32::EPSILON
+            || (self.y.floor() - self.y).abs() > f32::EPSILON)
+    }
+
+    pub fn get_cell_coords(&self) -> Self {
+        Self::new(self.x.abs(), self.y.abs())
     }
 
     pub fn get_distance(&self, other: &Self) -> f32 {
@@ -153,8 +173,8 @@ fn move_player(direction: &mut Direction, position: &mut Position, board: &Board
     let mut distance = distance;
     while distance > 0. {
         update_direction(position, direction, board);
-        let dest = position.get_adjacent(direction.current);
-        if matches!(board.get_cell(dest.x, dest.y), CellType::Wall(_)) {
+        let dest = position.get_target_cell(direction.current);
+        if matches!(board.get_cell(&dest), CellType::Wall(_)) {
             break;
         }
         distance = update_position(position, &dest, distance);
@@ -162,15 +182,12 @@ fn move_player(direction: &mut Direction, position: &mut Position, board: &Board
 }
 
 fn update_direction(position: &Position, direction: &mut Direction, board: &Board) {
-    if direction.current == direction.next
-        || (position.x.floor() - position.x).abs() > f32::EPSILON
-        || (position.y.floor() - position.y).abs() > f32::EPSILON
-    {
+    if direction.current == direction.next || !position.is_grid_aligned() {
         return;
     }
 
-    let next = position.get_adjacent(direction.next);
-    if !matches!(board.get_cell(next.x, next.y), CellType::Wall(_)) {
+    let next = position.get_target_cell(direction.next);
+    if !matches!(board.get_cell(&next), CellType::Wall(_)) {
         direction.current = direction.next;
     }
 }
@@ -225,8 +242,8 @@ fn move_enemy(
     let mut distance = distance;
     while distance > 0. {
         update_enemy_direction(position, direction, board, enemy);
-        let dest = position.get_adjacent(direction.current);
-        if matches!(board.get_cell(dest.x, dest.y), CellType::Wall(_)) {
+        let dest = position.get_target_cell(direction.current);
+        if matches!(board.get_cell(&dest), CellType::Wall(_)) {
             unreachable!();
         }
         distance = update_position(position, &dest, distance);
@@ -239,10 +256,7 @@ fn update_enemy_direction(
     board: &Board,
     enemy: Enemy,
 ) {
-    if (position.x.floor() - position.x).abs() > f32::EPSILON
-        || (position.y.floor() - position.y).abs() > f32::EPSILON
-    {
-        return;
+    if position.is_grid_aligned() {
+        direction.current = enemy.get_next_direction(position, direction, board);
     }
-    direction.current = enemy.get_next_direction(position, direction, board);
 }
