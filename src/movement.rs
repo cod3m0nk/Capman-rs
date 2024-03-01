@@ -216,6 +216,18 @@ fn move_object(
             break;
         }
         distance = update_position(position, &dest, distance);
+        wrap_around(position, board);
+    }
+}
+
+fn wrap_around(position: &mut Position, board: &Board) {
+    let (_rows, columns) = board.get_dimensions();
+    if position.x as isize == columns as isize {
+        position.x -= columns as f32 + 1.0;
+        return;
+    }
+    if (position.x as isize) < 0 {
+        position.x += columns as f32 + 1.0;
     }
 }
 

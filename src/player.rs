@@ -44,7 +44,7 @@ impl MovableObject for Player {
         }
 
         let next = pos.get_target_cell(dir.next);
-        if !matches!(board.get_cell(&next), CellType::Wall(_)) {
+        if !matches!(board.get_cell(&next), CellType::Wall(_) | CellType::Outside) {
             dir.current = dir.next;
         }
     }

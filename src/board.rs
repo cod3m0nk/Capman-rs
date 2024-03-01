@@ -28,7 +28,7 @@ pub struct Board {
     enemies: Vec<Enemy>,
 }
 
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Clone, Copy, PartialEq, Eq)]
 pub enum CellType {
     Wall(WallType),
     Dot,
@@ -37,7 +37,7 @@ pub enum CellType {
     Outside,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum WallType {
     Vertical,
     Horizontal,

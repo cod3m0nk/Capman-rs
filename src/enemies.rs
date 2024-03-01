@@ -40,9 +40,16 @@ impl MovableObject for Enemy {
     fn update_direction(&self, pos: &Position, dir: &mut Direction, board: &Board) {
         dir.current = match self.enemy_ai {
             EnemyAI::Random => {
+                // If the enemy is transitioning through outside of the
+                // board(using one tunnel), it cannot change the direction
+                let target = board.get_cell(&pos.get_target_cell(dir.current));
+                let current = board.get_cell(pos);
+                if target == CellType::Outside || current == CellType::Outside {
+                    return;
+                };
+
                 let mut directions = board.get_neighbours(pos.x, pos.y);
-                directions
-                    .retain(|(_, cell)| !matches!(cell, CellType::Wall(_) | CellType::Outside));
+                directions.retain(|(_, cell)| !matches!(cell, CellType::Wall(_)));
                 directions.retain(|(new_dir, _)| !dir.is_opposite(*new_dir));
                 let mut rng = thread_rng();
                 directions.choose(&mut rng).unwrap().0
