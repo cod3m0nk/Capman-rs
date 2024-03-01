@@ -1,9 +1,10 @@
 use crate::{
     board::{Board, CellType},
+    collision::Collider,
     game_assets::{GameAssets, GameAssetsLoader},
     movement::{Direction, MovableObject, MovingObjectBundle, Position, Velocity},
     spritesheet::{AnimatedSpriteBundle, AnimationStrategy, SpriteSheetAnimator},
-    PLAYER_VELOCITY, STARTING_DIRECTION,
+    ENEMY_RANGE, PLAYER_VELOCITY, STARTING_DIRECTION,
 };
 use bevy::prelude::*;
 use rand::{seq::SliceRandom, thread_rng};
@@ -97,6 +98,9 @@ fn spawn_enemies(
                     transform,
                     ..Default::default()
                 },
+            },
+            Collider {
+                distance: ENEMY_RANGE,
             },
             *enemy,
         ));

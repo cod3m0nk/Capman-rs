@@ -42,7 +42,6 @@ use movement::Directions;
 use movement::MovementPlugin;
 use player::PlayerPlugin;
 use spritesheet::AnimatedSpritePlugin;
-use state::GameGlobals;
 use state::StatePlugin;
 
 const FONT_SIZE: f32 = 20.0;
@@ -58,9 +57,11 @@ const STARTING_POSITION_Y: f32 = 23.;
 const STARTING_DIRECTION: Directions = Directions::Left;
 const PLAYER_VELOCITY: f32 = 8.;
 
+const INTIAL_LIVES: isize = 2;
 const POWERPILL_SCORE: usize = 50;
 const DOT_SCORE: usize = 10;
 const PICKUP_RANGE: f32 = 0.5;
+const ENEMY_RANGE: f32 = 1.0;
 
 fn main() {
     App::new()
@@ -97,6 +98,5 @@ fn main() {
         .add_plugins(DebugPlugin)
         .add_plugins(StatePlugin)
         .add_plugins(ui::GameUiPlugin)
-        .insert_resource(GameGlobals::default())
         .run();
 }
